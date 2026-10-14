@@ -31,15 +31,14 @@ Bancos incluidos: Banco Maestro (480 preguntas, 6 materias), Auditoría de TI (8
 
 ---
 
-## Flujo de venta
+## Cómo se entrega una licencia
 
-1. El estudiante ve precio y datos de pago en la página principal y transfiere.
-2. Llena **/solicitar** con su nombre, cédula, correo y número de comprobante.
-3. Tú entras a **/admin → Solicitudes**, verificas el pago en tu banco y pulsas **Aprobar**.
-4. Aparece el código y un mensaje listo para enviar por **WhatsApp** o correo.
-5. El estudiante entra a **/activar** desde su equipo, pone el código y crea su contraseña.
+La venta se coordina por WhatsApp; el sitio no muestra precios ni datos de pago.
 
-También puedes crear licencias directamente en **/admin → + Nueva licencia** (pagos por WhatsApp, efectivo, etc.).
+1. Acuerdas el pago con el estudiante por WhatsApp y lo verificas.
+2. En **/admin → + Nueva licencia** registras su nombre, correo, cédula y (opcional) monto y referencia del pago.
+3. Aparece el código y un mensaje listo para enviar por **WhatsApp** o correo.
+4. El estudiante entra a **/activar** desde su equipo, pone el código y crea su contraseña.
 
 ---
 
@@ -80,8 +79,7 @@ Cada vez que edites un banco, repite `extract` + `db:seed` (actualiza sin borrar
 1. Sube el proyecto a un repositorio de GitHub (**privado** recomendado). Las preguntas no están en el repo.
 2. En <https://vercel.com> → **Add New → Project** → importa el repositorio (Vercel detecta Next.js).
 3. En **Environment Variables** añade las de `.env.example`:
-   `DATABASE_URL` (Transaction pooler, 6543), `SESSION_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
-   `LICENSE_PRICE`, `CONTACT_WHATSAPP`, `PAYMENT_INFO`.
+   `DATABASE_URL` (Transaction pooler, 6543), `SESSION_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
 4. **Deploy**. Entra a `https://tu-proyecto.vercel.app/admin` con tu correo y contraseña de admin.
 
 > `SESSION_SECRET` debe ser el mismo siempre. Si lo cambias, los códigos pendientes y las sesiones dejan de valer.

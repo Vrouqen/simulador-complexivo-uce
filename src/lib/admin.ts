@@ -185,7 +185,6 @@ export async function licenseAction(id: string, action: string, b: Record<string
       return {};
     }
     case "delete": {
-      await sql`update app.license_requests set license_id = null where license_id = ${id}`;
       await sql`delete from app.licenses where id = ${id}`;
       return {};
     }
@@ -229,39 +228,6 @@ export async function getLicenseDetail(id: string) {
   return { license, devices, sessions, events, attempts, distinctIps7d: ips[0].n };
 }
 
-// ---------- Solicitudes ----------
-
-export async function listRequests(status: string) {
-  return sql`select * from app.license_requests where ${status} = 'all' or status = ${status}
-             order by created_at desc limit 300`;
-}
-
-export async function requestAction(id: string, action: string, b: Record<string, unknown>) {
-  const [r] = await sql<Record<string, unknown>[]>`select * from app.license_requests where id = ${id}`;
-  if (!r) throw new ApiError(404, "NOT_FOUND", "Solicitud no encontrada.");
-  if (action === "reject") {
-    await sql`update app.license_requests set status = 'rejected' where id = ${id}`;
-    return {};
-  }
-  if (action === "approve") {
-    if (r.status === "approved") throw new ApiError(409, "DONE", "La solicitud ya fue aprobada.");
-    const created = await createLicense({
-      fullName: b.fullName ?? r.full_name,
-      email: b.email ?? r.email,
-      idNumber: b.idNumber ?? r.id_number,
-      phone: b.phone ?? r.phone,
-      paymentRef: b.paymentRef ?? r.payment_ref,
-      amount: b.amount ?? null,
-      banks: b.banks ?? r.banks,
-      expiresAt: b.expiresAt ?? null,
-      notes: b.notes ?? r.message,
-    });
-    await sql`update app.license_requests set status = 'approved', license_id = ${created.id} where id = ${id}`;
-    return created;
-  }
-  throw new ApiError(400, "BAD_REQUEST", "Acción desconocida.");
-}
-
 export async function overview() {
   const [s] = await sql`
     select
@@ -269,7 +235,6 @@ export async function overview() {
       (select count(*)::int from app.licenses where status = 'active') as active,
       (select count(*)::int from app.licenses where status = 'pending') as pending,
       (select count(*)::int from app.licenses where status = 'blocked') as blocked,
-      (select count(*)::int from app.license_requests where status = 'pending') as requests,
       (select count(*)::int from app.events where severity = 'alert' and created_at > now() - interval '7 days') as alerts,
       (select coalesce(sum(amount),0)::float from app.licenses) as revenue,
       (select count(*)::int from app.attempts where submitted_at > now() - interval '7 days') as attempts7d`;

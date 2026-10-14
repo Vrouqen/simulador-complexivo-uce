@@ -226,47 +226,35 @@ const toPayload = (f: LicForm) => ({ ...f, amount: f.amount === "" ? null : Numb
 // ---------------------------------------------------------------------------
 export function AdminApp({ banks }: { banks: BankOpt[] }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"licenses" | "requests" | "new">("licenses");
+  const [tab, setTab] = useState<"licenses" | "new">("licenses");
   const [stats, setStats] = useState<Row | null>(null);
   const [rows, setRows] = useState<Row[] | null>(null);
   const [q, setQ] = useState("");
-  const [reqStatus, setReqStatus] = useState("pending");
-  const [requests, setRequests] = useState<Row[] | null>(null);
   const [created, setCreated] = useState<Created | null>(null);
-  const [approving, setApproving] = useState<Row | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadStats = useCallback(() => api<Row>("/api/admin/overview").then(setStats).catch(() => {}), []);
   const loadRows = useCallback(() => {
     api<Row[]>(`/api/admin/licenses?q=${encodeURIComponent(q)}`).then(setRows).catch((e) => setError(errMsg(e)));
   }, [q]);
-  const loadRequests = useCallback(() => {
-    api<Row[]>(`/api/admin/requests?status=${reqStatus}`).then(setRequests).catch((e) => setError(errMsg(e)));
-  }, [reqStatus]);
-
   useEffect(() => { loadStats(); }, [loadStats]);
   useEffect(() => { const t = setTimeout(loadRows, 250); return () => clearTimeout(t); }, [loadRows]);
-  useEffect(() => { if (tab === "requests") loadRequests(); }, [tab, loadRequests]);
 
-  const refresh = () => { loadStats(); loadRows(); if (tab === "requests") loadRequests(); };
+  const refresh = () => { loadStats(); loadRows(); };
 
   return (
     <>
       {stats && (
-        <div className="adm-stats">
+        <div className="adm-stats five">
           <div><b>{stats.active}</b><span>Licencias activas</span></div>
           <div><b>{stats.pending}</b><span>Pendientes de activar</span></div>
           <div><b>{stats.blocked}</b><span>Bloqueadas</span></div>
-          <div><b style={{ color: stats.requests ? "var(--red)" : undefined }}>{stats.requests}</b><span>Solicitudes por revisar</span></div>
           <div><b style={{ color: stats.alerts ? "var(--red)" : undefined }}>{stats.alerts}</b><span>Alertas de uso compartido (7 d)</span></div>
           <div><b>${Number(stats.revenue).toFixed(2)}</b><span>Ingresos registrados</span></div>
         </div>
       )}
       <div className="tabs">
         <button className={tab === "licenses" ? "on" : ""} onClick={() => setTab("licenses")}>Licencias</button>
-        <button className={tab === "requests" ? "on" : ""} onClick={() => setTab("requests")}>
-          Solicitudes {stats?.requests ? `(${stats.requests})` : ""}
-        </button>
         <button className={tab === "new" ? "on" : ""} onClick={() => setTab("new")}>+ Nueva licencia</button>
       </div>
       {error && <div className="alert error">{error}</div>}
@@ -303,53 +291,6 @@ export function AdminApp({ banks }: { banks: BankOpt[] }) {
         </div>
       )}
 
-      {tab === "requests" && (
-        <div className="card">
-          <div className="filters" style={{ marginBottom: 12 }}>
-            {[["pending", "Pendientes"], ["approved", "Aprobadas"], ["rejected", "Rechazadas"], ["all", "Todas"]].map(([k, l]) => (
-              <button key={k} className={`btn sm ${reqStatus === k ? "on" : ""}`} onClick={() => setReqStatus(k)}>{l}</button>
-            ))}
-          </div>
-          {!requests ? <p className="muted">Cargando…</p> : !requests.length ? <p className="muted">No hay solicitudes.</p> : (
-            <div className="table-wrap">
-              <table className="table">
-                <thead><tr><th>Fecha</th><th>Solicitante</th><th>Comprobante</th><th>Comentario</th><th></th></tr></thead>
-                <tbody>
-                  {requests.map((r) => (
-                    <tr key={r.id}>
-                      <td className="small">{fmt(r.created_at)}</td>
-                      <td><b>{r.full_name}</b><div className="tiny muted">{r.email} · CI {r.id_number} · {r.phone}</div></td>
-                      <td className="mono small">{r.payment_ref}</td>
-                      <td className="small">{r.message}</td>
-                      <td>
-                        {r.status === "pending" ? (
-                          <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                            <button className="btn ok sm" onClick={() => setApproving(r)}>Aprobar</button>
-                            <button
-                              className="btn danger sm"
-                              onClick={async () => {
-                                if (!confirm(`¿Rechazar la solicitud de ${r.full_name}?`)) return;
-                                await api(`/api/admin/requests/${r.id}`, { body: { action: "reject" } }).catch((e) => alert(errMsg(e)));
-                                refresh();
-                              }}
-                            >
-                              Rechazar
-                            </button>
-                          </div>
-                        ) : (
-                          <span className={`badge ${r.status === "approved" ? "ok" : "bad"}`}>{r.status === "approved" ? "Aprobada" : "Rechazada"}</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <p className="tiny muted">Antes de aprobar, verifica en tu banco que el comprobante corresponde a un pago recibido.</p>
-        </div>
-      )}
-
       {tab === "new" && (
         <div className="card">
           <h2 style={{ fontSize: "1.15rem", color: "var(--navy)", marginBottom: 12 }}>Nueva licencia</h2>
@@ -367,30 +308,6 @@ export function AdminApp({ banks }: { banks: BankOpt[] }) {
         </div>
       )}
 
-      {approving && (
-        <div className="overlay" onClick={() => setApproving(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Aprobar solicitud</h3>
-            <p className="small muted" style={{ marginTop: 0 }}>Revisa los datos, registra el monto recibido y crea la licencia.</p>
-            <LicenseForm
-              banks={banks}
-              initial={{
-                ...emptyForm,
-                fullName: approving.full_name, email: approving.email, idNumber: approving.id_number || "",
-                phone: approving.phone || "", paymentRef: approving.payment_ref || "", notes: approving.message || "",
-                banks: approving.banks || ["*"],
-              }}
-              submitLabel="Aprobar y generar código"
-              onSubmit={async (f) => {
-                const r = await api<Created>(`/api/admin/requests/${approving.id}`, { body: { action: "approve", ...toPayload(f) } });
-                setCreated({ ...r, phone: f.phone });
-                setApproving(null);
-                refresh();
-              }}
-            />
-          </div>
-        </div>
-      )}
       {created && <CodeModal data={created} onClose={() => { setCreated(null); setTab("licenses"); }} />}
     </>
   );

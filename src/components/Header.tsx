@@ -18,7 +18,6 @@ export function PublicHeader() {
       <div className="wrap">
         <Brand />
         <nav>
-          <Link href="/#comprar">Comprar licencia</Link>
           <Link href="/activar">Activar licencia</Link>
           <Link href="/ingresar" className="cta">Ingresar</Link>
         </nav>

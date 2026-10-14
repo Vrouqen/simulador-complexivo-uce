@@ -118,13 +118,11 @@ textarea.input { min-height: 90px; resize: vertical; }
 .bank-card .count { font-size: 2rem; font-weight: 800; color: var(--red); line-height: 1; margin: 14px 0 2px; }
 .bank-card ul { padding-left: 18px; margin: 10px 0 0; color: var(--muted); font-size: 0.9rem; }
 .steps { counter-reset: s; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 26px; }
+.steps.three { grid-template-columns: repeat(3, 1fr); }
 .steps > div { counter-increment: s; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
 .steps > div::before { content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; margin-bottom: 12px; }
 .steps h3 { font-size: 1.02rem; margin-bottom: 6px; }
 .steps p { margin: 0; color: var(--muted); font-size: 0.93rem; }
-.price-box { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-.price { font-size: 2.6rem; font-weight: 800; color: var(--navy); }
-.payinfo { white-space: pre-line; background: var(--bg); border-radius: 10px; padding: 14px 16px; font-size: 0.95rem; }
 .rules li { margin: 6px 0; }
 footer.foot { border-top: 1px solid var(--line); padding: 26px 0; color: var(--muted); font-size: 0.88rem; background: #fff; }
 
@@ -208,6 +206,7 @@ footer.foot { border-top: 1px solid var(--line); padding: 26px 0; color: var(--m
 
 /* ---------- Administración ---------- */
 .adm-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 20px; }
+.adm-stats.five { grid-template-columns: repeat(5, 1fr); }
 .adm-stats div { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
 .adm-stats b { display: block; font-size: 1.5rem; color: var(--navy); }
 .adm-stats span { font-size: 0.82rem; color: var(--muted); }
@@ -226,9 +225,8 @@ footer.foot { border-top: 1px solid var(--line); padding: 26px 0; color: var(--m
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
-  .cards3, .steps { grid-template-columns: 1fr 1fr; }
-  .setup, .price-box { grid-template-columns: 1fr; }
-  .adm-stats { grid-template-columns: repeat(3, 1fr); }
+  .cards3, .steps, .steps.three { grid-template-columns: 1fr 1fr; }
+  .setup,   .adm-stats, .adm-stats.five { grid-template-columns: repeat(3, 1fr); }
   .ex-grid { grid-template-columns: 1fr; }
   .ex-nav { position: static; max-height: none; display: none; }
   .ex-nav.open { display: block; }
@@ -237,9 +235,9 @@ footer.foot { border-top: 1px solid var(--line); padding: 26px 0; color: var(--m
 }
 @media (max-width: 640px) {
   .wrap { padding: 0 16px; }
-  .cards3, .steps, .grid2, .topics { grid-template-columns: 1fr; }
+  .cards3, .steps, .steps.three, .grid2, .topics { grid-template-columns: 1fr; }
   .kpis { grid-template-columns: 1fr 1fr; }
-  .adm-stats { grid-template-columns: 1fr 1fr; }
+  .adm-stats, .adm-stats.five { grid-template-columns: 1fr 1fr; }
   .card { padding: 18px; }
   .qcard { padding: 18px; }
   .result-hero { grid-template-columns: 1fr; justify-items: center; text-align: center; }
