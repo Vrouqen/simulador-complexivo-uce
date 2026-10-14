@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.env
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+# Bancos de preguntas: NUNCA se suben al repositorio (viven en la base de datos)
+content/
+originales/
+.pglite/

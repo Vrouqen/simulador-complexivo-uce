@@ -1,0 +1,31 @@
+{
+  "name": "simulador-complexivo-uce",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "extract": "node scripts/extract-banks.mjs",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/db-migrate.mjs",
+    "db:seed": "node --env-file-if-exists=.env.local scripts/db-seed.mjs",
+    "db:local": "pglite-server --db=.pglite --port=5433"
+  },
+  "dependencies": {
+    "bcryptjs": "3.0.3",
+    "next": "15.5.27",
+    "postgres": "3.4.9",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
+    "@electric-sql/pglite-socket": "0.2.13",
+    "@types/node": "22.20.5",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "typescript": "5.9.3"
+  }
+}
